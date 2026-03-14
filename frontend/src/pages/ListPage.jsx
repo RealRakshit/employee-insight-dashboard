@@ -126,7 +126,9 @@ export default function ListPage() {
                       key={key}
                       style={{ height: ROW_HEIGHT }}
                       className="cursor-pointer border-b border-slate-800/60 hover:bg-slate-800/60"
-                      onClick={() => navigate(`/details/${row.id ?? actualIndex}`)}
+                      onClick={() =>
+                        navigate(`/details/${row.id ?? actualIndex}`, { state: { employee: row } })
+                      }
                     >
                       {columns.map((col) => (
                         <td key={col} className="px-3 py-2 text-slate-100">
