@@ -36,7 +36,16 @@ export default function DetailsPage() {
         setLoading(true)
         const data = await fetchEmployees()
         if (cancelled) return
-        const found = data.find((row) => String(row.id) === String(id)) ?? null
+        let found =
+          data.find((row) => String(row.id) === String(id)) ?? null
+
+        // Fallback: if there is no stable id field and we navigated with row index
+        if (!found) {
+          const numeric = Number(id)
+          if (!Number.isNaN(numeric) && numeric >= 0 && numeric < data.length) {
+            found = data[numeric]
+          }
+        }
         if (!found) setError('Employee not found')
         setEmployee(found)
       } catch (err) {
@@ -232,17 +241,17 @@ export default function DetailsPage() {
 
   if (error || !employee) {
     return (
-      <div className="text-red-400">
+      <div className="rounded-2xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">
         {error || 'Employee not found for this id.'}
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h1 className="text-xl font-semibold text-slate-100">Identity Verification</h1>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 p-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-slate-400">ID</span>
           <span className="font-mono text-slate-100">{employeeSummary?.id}</span>
@@ -267,7 +276,7 @@ export default function DetailsPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 p-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="font-semibold text-slate-100">Camera</h2>
@@ -287,7 +296,7 @@ export default function DetailsPage() {
             )}
             {cameraOn && (
               <button
-                className="rounded border border-slate-600 px-3 py-2 text-sm hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-md border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 hover:bg-slate-800/80 transition-colors"
                 onClick={stopCamera}
               >
                 Stop
@@ -295,7 +304,7 @@ export default function DetailsPage() {
             )}
             {cameraOn && (
               <button
-                className="rounded bg-emerald-600 px-3 py-2 text-sm hover:bg-emerald-500"
+                className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500 active:bg-emerald-700 transition-colors"
                 onClick={capturePhoto}
               >
                 Capture
@@ -303,7 +312,7 @@ export default function DetailsPage() {
             )}
             {captured && (
               <button
-                className="rounded border border-slate-600 px-3 py-2 text-sm hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-md border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 hover:bg-slate-800/80 transition-colors"
                 onClick={() => {
                   setCaptured(false)
                   clearSignature()
@@ -351,13 +360,13 @@ export default function DetailsPage() {
         {captured && (
           <div className="flex items-center justify-between gap-3">
             <button
-              className="rounded border border-slate-600 px-3 py-2 text-sm hover:bg-slate-800"
+              className="inline-flex items-center justify-center rounded-md border border-slate-600 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 hover:bg-slate-800/80 transition-colors"
               onClick={clearSignature}
             >
               Clear signature
             </button>
             <button
-              className="rounded bg-indigo-600 px-3 py-2 text-sm hover:bg-indigo-500"
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 active:bg-indigo-700 transition-colors"
               onClick={mergeAndGoAnalytics}
             >
               Merge & Continue

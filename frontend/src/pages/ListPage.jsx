@@ -14,6 +14,17 @@ export default function ListPage() {
   const containerRef = useRef(null)
   const navigate = useNavigate()
 
+  // INTENTIONAL BUG (required by assignment):
+  // Adds a global resize listener but never removes it -> memory leak / wasted work.
+  useEffect(() => {
+    const onResize = () => {
+      // touch state on every resize without changing value
+      setScrollTop((v) => v)
+    }
+    window.addEventListener('resize', onResize)
+    // no cleanup on purpose (violates best practice)
+  }, [])
+
   useEffect(() => {
     let cancelled = false
 
@@ -79,17 +90,30 @@ export default function ListPage() {
   }
 
   if (!rows.length) {
-    return <div className="text-slate-300">No employees found.</div>
+    return (
+      <div className="space-y-2">
+        <div className="text-slate-300">No employees found.</div>
+        <p className="text-xs text-slate-500">
+          If this keeps showing, the backend may be returning an unexpected shape.
+        </p>
+      </div>
+    )
   }
 
-  // API ke hisaab se change karo (pehle console.log(rows[0]))
-  const columns = ['id', 'name', 'city', 'salary']
+  // Derive columns from the first row so that the table always shows something,
+  // even if the API uses different field names.
+  const derivedColumns = Object.keys(rows[0] || {})
+  const preferred = ['id', 'name', 'city', 'salary']
+  const columns =
+    preferred.filter((k) => derivedColumns.includes(k)).length > 0
+      ? preferred.filter((k) => derivedColumns.includes(k))
+      : derivedColumns.slice(0, 6)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <h1 className="text-xl font-semibold text-slate-100">Employees</h1>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 overflow-hidden">
         {/* scroll container */}
         <div
           ref={containerRef}

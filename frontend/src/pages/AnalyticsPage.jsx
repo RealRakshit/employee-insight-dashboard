@@ -53,8 +53,11 @@ export default function AnalyticsPage() {
   const salaryByCity = useMemo(() => {
     const map = new Map()
     for (const row of rows) {
-      const city = row.city || 'Unknown'
-      const salary = Number(row.salary) || 0
+      const city =
+        row.city || row.City || row.CITY || row.location || 'Unknown'
+      const salary = Number(
+        row.salary || row.SALARY || row.ctc || row.CTC || 0,
+      )
       if (!map.has(city)) {
         map.set(city, { city, total: 0, count: 0 })
       }
@@ -102,7 +105,7 @@ export default function AnalyticsPage() {
       <h1 className="text-xl font-semibold text-slate-100">Analytics</h1>
 
       {/* Audit image card */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 p-4 space-y-2">
         <h2 className="font-semibold text-slate-100">Audit Image (Photo + Signature)</h2>
         {auditImage ? (
           <img
@@ -118,7 +121,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Salary distribution chart */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 p-4 space-y-2">
         <h2 className="font-semibold text-slate-100">Salary Distribution per City</h2>
         {salaryByCity.length === 0 ? (
           <p className="text-sm text-slate-400">No salary data available.</p>
@@ -213,7 +216,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* City map */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/70 shadow-lg shadow-black/30 p-4 space-y-2">
         <h2 className="font-semibold text-slate-100">City Map (Approximate)</h2>
         <svg
           viewBox="0 0 320 360"
@@ -227,7 +230,7 @@ export default function AnalyticsPage() {
             strokeWidth="2"
           />
 
-          {/* cities */}
+          {/* cities with labeled markers */}
           {salaryByCity.map((entry) => {
             const coord = CITY_COORDS[entry.city]
             if (!coord) return null
@@ -235,13 +238,28 @@ export default function AnalyticsPage() {
             return (
               <g key={entry.city}>
                 <circle cx={coord.x} cy={coord.y} r={size} fill="#22c55e" />
+
+                {/* label background */}
+                <rect
+                  x={coord.x + 6}
+                  y={coord.y - 14}
+                  rx={3}
+                  ry={3}
+                  width={70}
+                  height={16}
+                  fill="rgba(15,23,42,0.9)"
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                />
+
+                {/* label text: city + count */}
                 <text
-                  x={coord.x + 8}
-                  y={coord.y - 4}
+                  x={coord.x + 10}
+                  y={coord.y - 3}
                   fontSize="9"
                   fill="#e5e7eb"
                 >
-                  {entry.city}
+                  {entry.city} ({entry.count})
                 </text>
               </g>
             )
